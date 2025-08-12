@@ -1,4 +1,4 @@
-package com.example.sandbox;
+package com.example.sandbox.lotto;
 
 import java.time.LocalDate;
 import java.util.List;
