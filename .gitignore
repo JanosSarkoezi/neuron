@@ -1,2 +1,4 @@
 .idea/
 target/
+loss.csv
+my_plot.png
