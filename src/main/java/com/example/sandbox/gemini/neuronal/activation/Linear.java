@@ -14,4 +14,9 @@ public final class Linear implements ActivationFunction {
         }
         return identity;
     }
+
+    @Override
+    public double[] applyDerivative(double[] z, double[] errors) {
+        return errors.clone(); // Ableitung = 1 → Fehler unverändert
+    }
 }

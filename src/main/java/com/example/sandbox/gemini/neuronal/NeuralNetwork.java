@@ -39,8 +39,9 @@ public class NeuralNetwork {
             Layer currentLayer = layers.get(i);
 
             // 3a. Fehler der aktuellen Schicht berechnen
-            double[][] afDerivatives = currentLayer.getActivationFunction().derivative(currentLayer.getLastOutputSums());
-            double[] propagatedErrors = MatrixOperations.multiply(afDerivatives, currentErrors);
+            // Strategie-Pattern durch applyDerivative()
+            double[] propagatedErrors = currentLayer.getActivationFunction()
+                    .applyDerivative(currentLayer.getLastOutputSums(), currentErrors);
 
             // 3b. Inputs für die Gewichtsanpassung
             double[] inputsToCurrentLayer = (i == 0) ? input : layers.get(i - 1).getLastOutputs();

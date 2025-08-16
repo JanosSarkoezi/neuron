@@ -10,18 +10,14 @@ public class Layer {
     private final ActivationFunction activationFunction;
     private double[] lastOutputSums;
     private double[] lastOutputs;
-    private double[][] weightsMatrix; // Neues Attribut für die Gewichtsmatrix
 
     public Layer(int numNeurons, int numInputsPerNeuron, ActivationFunction af) {
         this.neurons = new ArrayList<>(numNeurons);
         this.activationFunction = af;
-        this.weightsMatrix = new double[numNeurons][numInputsPerNeuron];
 
         for (int i = 0; i < numNeurons; i++) {
             Neuron neuron = new Neuron(numInputsPerNeuron);
             this.neurons.add(neuron);
-            // Gewichte direkt in der Matrix speichern
-            this.weightsMatrix[i] = neuron.getWeights();
         }
     }
 
@@ -36,10 +32,20 @@ public class Layer {
         return this.lastOutputs;
     }
 
-    // Die backward-Methode ist jetzt nicht mehr notwendig, da die Logik in NeuralNetwork
-    // für mehr Kontrolle zentralisiert wurde.
+    /**
+     * Liefert die aktuelle Gewichtsmatrix, abgeleitet von den Neuronen.
+     * Jede Zeile entspricht den Gewichten eines Neurons.
+     */
+    public double[][] getWeightsMatrix() {
+        double[][] matrix = new double[neurons.size()][];
+        for (int i = 0; i < neurons.size(); i++) {
+            // Direkte Referenz auf das Array – falls du Schutz willst, hier .clone() verwenden
+            matrix[i] = neurons.get(i).getWeights();
+        }
+        return matrix;
+    }
 
-    // --- Getter-Methoden ---
+    // --- Getter ---
     public List<Neuron> getNeurons() {
         return neurons;
     }
@@ -54,9 +60,5 @@ public class Layer {
 
     public double[] getLastOutputs() {
         return lastOutputs;
-    }
-
-    public double[][] getWeightsMatrix() {
-        return weightsMatrix;
     }
 }

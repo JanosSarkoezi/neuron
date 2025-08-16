@@ -23,4 +23,14 @@ public final class Sigmoid implements ActivationFunction {
         }
         return jacobian;
     }
+
+    @Override
+    public double[] applyDerivative(double[] z, double[] errors) {
+        double[] sig = activate(z);
+        double[] result = new double[errors.length];
+        for (int i = 0; i < errors.length; i++) {
+            result[i] = errors[i] * sig[i] * (1.0 - sig[i]);
+        }
+        return result;
+    }
 }

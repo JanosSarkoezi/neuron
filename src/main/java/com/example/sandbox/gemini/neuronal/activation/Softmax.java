@@ -1,5 +1,7 @@
 package com.example.sandbox.gemini.neuronal.activation;
 
+import com.example.sandbox.gemini.neuronal.util.MatrixOperations;
+
 public final class Softmax implements ActivationFunction {
 
     @Override
@@ -40,5 +42,11 @@ public final class Softmax implements ActivationFunction {
             }
         }
         return jacobian;
+    }
+
+    @Override
+    public double[] applyDerivative(double[] z, double[] errors) {
+        double[][] jacobi = derivative(z);
+        return MatrixOperations.multiply(jacobi, errors);
     }
 }

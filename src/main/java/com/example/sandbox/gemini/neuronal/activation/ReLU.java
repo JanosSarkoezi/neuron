@@ -22,4 +22,13 @@ public final class ReLU implements ActivationFunction {
         }
         return jacobian;
     }
+
+    @Override
+    public double[] applyDerivative(double[] z, double[] errors) {
+        double[] result = new double[errors.length];
+        for (int i = 0; i < errors.length; i++) {
+            result[i] = errors[i] * (z[i] > 0 ? 1.0 : 0.0);
+        }
+        return result;
+    }
 }
