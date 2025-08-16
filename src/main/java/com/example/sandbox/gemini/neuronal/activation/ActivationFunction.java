@@ -1,6 +1,6 @@
 package com.example.sandbox.gemini.neuronal.activation;
 
-public sealed interface ActivationFunction permits ReLU, Sigmoid, Softmax, Linear {
+public sealed interface ActivationFunction permits ReLU, Sigmoid, Softmax, Linear, Swish, GELU, LeakyReLU, ELU {
     double[] activate(double[] x);
     double[][] derivative(double[] x);
 
