@@ -1,8 +1,8 @@
-package com.example.sandbox.gpt;
+package com.example.sandbox.neuron;
 
-import com.example.sandbox.gpt.activation.Sigmoid;
-import com.example.sandbox.gpt.loss.MeanSquaredError;
-import com.example.sandbox.gpt.optimizer.AdamOptimizer;
+import com.example.sandbox.neuron.activation.Sigmoid;
+import com.example.sandbox.neuron.loss.MeanSquaredError;
+import com.example.sandbox.neuron.optimizer.AdamOptimizer;
 
 public class NNExample {
     public static void main(String[] args) {

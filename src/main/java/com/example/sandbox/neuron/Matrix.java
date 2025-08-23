@@ -1,4 +1,4 @@
-package com.example.sandbox.gpt;
+package com.example.sandbox.neuron;
 
 import java.util.function.DoubleUnaryOperator;
 import java.util.Random;

@@ -1,6 +1,6 @@
-package com.example.sandbox.gpt.activation;
+package com.example.sandbox.neuron.activation;
 
-import com.example.sandbox.gpt.Matrix;
+import com.example.sandbox.neuron.Matrix;
 
 public class ReLU implements ActivationFunction {
     @Override

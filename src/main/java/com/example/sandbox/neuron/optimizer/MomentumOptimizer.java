@@ -1,7 +1,7 @@
-package com.example.sandbox.gpt.optimizer;
+package com.example.sandbox.neuron.optimizer;
 
-import com.example.sandbox.gpt.Layer;
-import com.example.sandbox.gpt.Matrix;
+import com.example.sandbox.neuron.Layer;
+import com.example.sandbox.neuron.Matrix;
 
 public class MomentumOptimizer implements Optimizer {
     private Matrix v_w;

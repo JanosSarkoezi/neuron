@@ -1,11 +1,11 @@
-package com.example.sandbox.gpt.builder;
+package com.example.sandbox.neuron.builder;
 
-import com.example.sandbox.gpt.Layer;
-import com.example.sandbox.gpt.Matrix;
-import com.example.sandbox.gpt.interfaces.WeightInitializer;
-import com.example.sandbox.gpt.activation.ActivationFunction;
-import com.example.sandbox.gpt.optimizer.Optimizer;
-import com.example.sandbox.gpt.optimizer.SGDOptimizer;
+import com.example.sandbox.neuron.Layer;
+import com.example.sandbox.neuron.Matrix;
+import com.example.sandbox.neuron.interfaces.WeightInitializer;
+import com.example.sandbox.neuron.activation.ActivationFunction;
+import com.example.sandbox.neuron.optimizer.Optimizer;
+import com.example.sandbox.neuron.optimizer.SGDOptimizer;
 
 import java.util.Random;
 import java.util.function.BiFunction;

@@ -1,4 +1,4 @@
-package com.example.sandbox.gpt;
+package com.example.sandbox.neuron;
 
 import org.junit.Test;
 import static org.junit.Assert.*;

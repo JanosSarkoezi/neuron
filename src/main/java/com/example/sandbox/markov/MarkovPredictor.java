@@ -1,6 +1,6 @@
 package com.example.sandbox.markov;
 
-import com.example.sandbox.gpt.Matrix;
+import com.example.sandbox.neuron.Matrix;
 
 import java.util.ArrayList;
 import java.util.List;

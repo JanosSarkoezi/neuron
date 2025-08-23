@@ -1,8 +1,8 @@
-package com.example.sandbox.gpt;
+package com.example.sandbox.neuron;
 
-import com.example.sandbox.gpt.activation.ActivationFunction;
-import com.example.sandbox.gpt.builder.LayerBuilder;
-import com.example.sandbox.gpt.optimizer.Optimizer;
+import com.example.sandbox.neuron.activation.ActivationFunction;
+import com.example.sandbox.neuron.builder.LayerBuilder;
+import com.example.sandbox.neuron.optimizer.Optimizer;
 
 public class Layer {
     // ✅ Mutable für Training

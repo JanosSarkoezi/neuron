@@ -1,6 +1,6 @@
-package com.example.sandbox.gpt.interfaces;
+package com.example.sandbox.neuron.interfaces;
 
-import com.example.sandbox.gpt.Matrix;
+import com.example.sandbox.neuron.Matrix;
 
 import java.util.Random;
 

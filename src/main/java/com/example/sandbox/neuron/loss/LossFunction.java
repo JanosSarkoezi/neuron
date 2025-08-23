@@ -1,6 +1,6 @@
-package com.example.sandbox.gpt.loss;
+package com.example.sandbox.neuron.loss;
 
-import com.example.sandbox.gpt.Matrix;
+import com.example.sandbox.neuron.Matrix;
 
 public interface LossFunction {
     double loss(Matrix expected, Matrix actual);

@@ -1,7 +1,7 @@
-package com.example.sandbox.gpt;
+package com.example.sandbox.neuron;
 
-import com.example.sandbox.gpt.activation.ActivationFunction;
-import com.example.sandbox.gpt.loss.LossFunction;
+import com.example.sandbox.neuron.activation.ActivationFunction;
+import com.example.sandbox.neuron.loss.LossFunction;
 
 import java.util.*;
 import java.util.function.Supplier;
