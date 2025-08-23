@@ -336,4 +336,14 @@ public sealed interface ValidationResult<T> permits ValidationResult.Success, Va
             }
         };
     }
+
+    /**
+     * Gibt die Liste der Fehlermeldungen zurück, wenn es sich um ein fehlgeschlagenes Ergebnis handelt.
+     * Andernfalls gibt es eine leere Liste zurück.
+     *
+     * @return Eine Liste von Strings, die die Fehlermeldungen enthält.
+     */
+    default List<String> getErrors() {
+        return fold(value -> new ArrayList<>(), errorsList -> errorsList);
+    }
 }

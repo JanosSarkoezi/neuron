@@ -3,8 +3,8 @@ package com.example.sandbox.validator;
 import org.junit.Test;
 import java.util.List;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ValidationResultTest {
 
@@ -22,6 +22,7 @@ public class ValidationResultTest {
         ValidationResult<String> result = ValidationResult.failure("Fehler 1");
         assertThat(result.isValid()).isFalse();
         assertThat(result.toOptional()).isEmpty();
+        assertThat(result.getErrors()).containsExactly("Fehler 1"); // Überarbeitet
     }
 
     @Test
@@ -29,6 +30,7 @@ public class ValidationResultTest {
         ValidationResult<String> result = ValidationResult.failure(List.of("Fehler 1", "Fehler 2"));
         assertThat(result.isValid()).isFalse();
         assertThat(result.toOptional()).isEmpty();
+        assertThat(result.getErrors()).containsExactly("Fehler 1", "Fehler 2"); // Überarbeitet
     }
 
     // --- Tests für Basismethoden ---
@@ -60,6 +62,14 @@ public class ValidationResultTest {
         assertThat(optional).isEmpty();
     }
 
+    // Neuer Testfall für getErrors() bei einem erfolgreichen Ergebnis
+    @Test
+    public void getErrors_shouldReturnEmptyList_onSuccess() {
+        ValidationResult<String> result = ValidationResult.success("OK");
+        assertThat(result.getErrors()).isEmpty();
+    }
+
+
     // --- Tests für funktionale Transformationen ---
 
     @Test
@@ -77,9 +87,7 @@ public class ValidationResultTest {
         ValidationResult<String> mappedResult = result.map(String::valueOf);
 
         assertThat(mappedResult.isValid()).isFalse();
-
-        List<String> errors = mappedResult.fold(v -> null, e -> e);
-        assertThat(errors).containsExactly("Fehler beim Mappen");
+        assertThat(mappedResult.getErrors()).containsExactly("Fehler beim Mappen"); // Überarbeitet
     }
 
     @Test
@@ -97,9 +105,7 @@ public class ValidationResultTest {
         ValidationResult<Integer> flatMappedResult = result.flatMap(s -> ValidationResult.failure("Keine Zahl"));
 
         assertThat(flatMappedResult.isValid()).isFalse();
-
-        List<String> errors = flatMappedResult.fold(v -> null, e -> e);
-        assertThat(errors).containsExactly("Keine Zahl");
+        assertThat(flatMappedResult.getErrors()).containsExactly("Keine Zahl"); // Überarbeitet
     }
 
     @Test
@@ -108,9 +114,7 @@ public class ValidationResultTest {
         ValidationResult<Integer> flatMappedResult = result.flatMap(s -> ValidationResult.success(Integer.valueOf(s)));
 
         assertThat(flatMappedResult.isValid()).isFalse();
-
-        List<String> errors = flatMappedResult.fold(v -> null, e -> e);
-        assertThat(errors).containsExactly("Initialer Fehler");
+        assertThat(flatMappedResult.getErrors()).containsExactly("Initialer Fehler"); // Überarbeitet
     }
 
     // --- Tests für Kombinations- und Fold-Methoden ---
@@ -143,8 +147,7 @@ public class ValidationResultTest {
         ValidationResult<String> combined = r1.combine(r2);
 
         assertThat(combined.isValid()).isFalse();
-        List<String> errors = combined.fold(v -> null, e -> e);
-        assertThat(errors).containsExactly("Fehler 2");
+        assertThat(combined.getErrors()).containsExactly("Fehler 2"); // Überarbeitet
     }
 
     @Test
@@ -155,9 +158,7 @@ public class ValidationResultTest {
         ValidationResult<String> combined = r1.combine(r2);
 
         assertThat(combined.isValid()).isFalse();
-
-        List<String> errors = combined.fold(v -> null, e -> e);
-        assertThat(errors).containsExactly("Fehler 1", "Fehler 2");
+        assertThat(combined.getErrors()).containsExactly("Fehler 1", "Fehler 2"); // Überarbeitet
     }
 
     // --- Tests für Peek-Methode ---
