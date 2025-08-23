@@ -53,6 +53,16 @@ public record Matrix(int rows, int cols, double[][] data) {
         return new Matrix(rows, cols, values);
     }
 
+    public static Matrix ones(int rows, int cols) {
+        double[][] values = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                values[i][j] = 1.0;
+            }
+        }
+        return new Matrix(rows, cols, values);
+    }
+
     public static Matrix random(int rows, int cols, long seed) {
         return random(rows, cols, new Random(seed));
     }
