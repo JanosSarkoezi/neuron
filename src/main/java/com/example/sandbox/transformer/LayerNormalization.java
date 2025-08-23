@@ -1,36 +1,75 @@
 package com.example.sandbox.transformer;
 
 import com.example.sandbox.neuron.Matrix;
-import com.example.sandbox.neuron.activation.ActivationFunction;
 
-public class LayerNormalization implements ActivationFunction {
-    private final double epsilon = 1e-6;
-    private Matrix gamma; // Skalierungs-Parameter
-    private Matrix beta;  // Verschiebungs-Parameter
+public class LayerNormalization {
+    private final Matrix gamma;
+    private final Matrix beta;
 
-    public LayerNormalization(int inputSize) {
-        // Initialisierung von Gamma und Beta, die gelernt werden
-        this.gamma = Matrix.ones(inputSize, 1);
-        this.beta = Matrix.zeros(inputSize, 1);
+    // Speicher für den Rückwärtspass
+    private Matrix lastInput;
+    private Matrix lastMean;
+    private Matrix lastStdDevInv; // 1 / sqrt(variance + epsilon)
+
+    public LayerNormalization(int d_model) {
+        // Gamma wird mit Einsen initialisiert, Beta mit Nullen
+        // Anmerkung: Ihre Matrix-Klasse hat noch keine 'ones'-Methode,
+        // Sie müssten diese hinzufügen.
+        this.gamma = Matrix.ones(d_model, 1);
+        this.beta = Matrix.zeros(d_model, 1);
     }
 
-    @Override
-    public Matrix apply(Matrix input) {
-        // Berechne Mittelwert und Varianz
-        double mean = input.mean();
-        double variance = input.subtract(mean).square().mean();
+    /**
+     * Führt den Vorwärtspass der Layer-Normalisierung aus.
+     *
+     * @param input Die Eingabematrix.
+     * @return Die normalisierte und transformierte Ausgabematrix.
+     */
+    public Matrix forward(Matrix input) {
+        this.lastInput = input;
+
+        // Berechnung von Mittelwert und Varianz für jede Zeile
+        Matrix mean = input.meanByRow();
+        Matrix variance = input.subtract(mean).pow(2).meanByRow();
+
+        // Speichern für den Rückwärtspass
+        this.lastMean = mean;
+
+        // Inverses der Standardabweichung mit einem kleinen Epsilon zur numerischen Stabilität
+        double epsilon = 1e-5;
+        this.lastStdDevInv = variance.add(epsilon).pow(-0.5);
 
         // Normalisierung
-        Matrix normalized = input.subtract(mean).multiply(1.0 / Math.sqrt(variance + epsilon));
+        Matrix normalized = input.subtract(mean).hadamard(lastStdDevInv);
 
-        // Skalierung und Verschiebung
-        return normalized.hadamard(gamma).add(beta);
+        // Skalierung und Verschiebung (gamma * normalized + beta)
+        return gamma.hadamard(normalized).add(beta);
     }
 
-    @Override
-    public Matrix derivative(Matrix z) {
-        // Die Ableitung ist komplexer, hier nur eine vereinfachte Version
-        // Für das Training müssten die Gradienten für Gamma und Beta berechnet werden.
-        return Matrix.ones(z.rows(), z.cols());
+    /**
+     * Führt den Rückwärtspass der Layer-Normalisierung aus.
+     *
+     * @param delta Der Gradient, der von der nachfolgenden Schicht kommt.
+     * @return Das Delta, das an die vorherige Schicht weitergegeben wird.
+     */
+    public Matrix backward(Matrix delta) {
+        Matrix d_normalized = delta.hadamard(this.gamma);
+
+        // Gradienten für gamma und beta berechnen
+        Matrix d_beta = delta.sumByRow();
+        Matrix d_gamma = delta.hadamard(lastInput.subtract(lastMean)).hadamard(lastStdDevInv).sumByRow();
+
+        // Propagieren des Deltas zurück
+        int N = lastInput.rows();
+        Matrix term1 = d_normalized.hadamard(lastStdDevInv);
+        Matrix term2 = lastInput.subtract(lastMean).hadamard(lastStdDevInv.pow(3)).hadamard(d_normalized.sumByRow()).divide(N);
+        Matrix term3 = d_normalized.hadamard(lastStdDevInv).sumByRow().divide(N);
+
+        Matrix d_input = term1.subtract(term2).subtract(term3);
+
+        // Hier würden Sie die Parameter (gamma, beta) mit einem Optimizer updaten
+        // updateParameters(d_gamma, d_beta);
+
+        return d_input;
     }
 }

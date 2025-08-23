@@ -47,6 +47,29 @@ public class Layer {
         optimizer.update(this, dW, dB, learningRate);
     }
 
+    /**
+     * Führt den Rückwärtspass für diesen Layer aus.
+     *
+     * @param delta Die Gradienten der nachfolgenden Schicht.
+     * @param aPrev Die Aktivierung der VORHERIGEN Schicht.
+     * @return Das Delta, das an die vorherige Schicht weitergegeben wird.
+     */
+    public Matrix backward(Matrix delta, Matrix aPrev) {
+        // 1. Delta mit der Ableitung der Aktivierungsfunktion multiplizieren
+        Matrix activationDerivative = activation.derivative(this.z);
+        Matrix deltaPostActivation = delta.hadamard(activationDerivative);
+
+        // 2. Gradienten für Gewichte und Biases berechnen
+        Matrix dW = deltaPostActivation.dot(aPrev.transpose());
+        Matrix dB = deltaPostActivation;
+
+        // 3. Parameter updaten
+        updateParameters(dW, dB, 1.0); // Lernrate wird vom Trainer übergeben
+
+        // 4. Das Delta für die vorherige Schicht berechnen und zurückgeben
+        return this.weights.transpose().dot(deltaPostActivation);
+    }
+
     public static LayerBuilder builder() {
         return new LayerBuilder();
     }

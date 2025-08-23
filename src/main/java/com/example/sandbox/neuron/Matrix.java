@@ -136,6 +136,72 @@ public record Matrix(int rows, int cols, double[][] data) {
         return sum() / (rows * cols);
     }
 
+    /**
+     * Berechnet den Mittelwert jedes Elements pro Zeile.
+     * @return Eine Matrix (Spaltenvektor) mit den Mittelwerten.
+     */
+    public Matrix meanByRow() {
+        double[][] means = new double[rows][1];
+        for (int i = 0; i < rows; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < cols; j++) {
+                sum += data[i][j];
+            }
+            means[i][0] = sum / cols;
+        }
+        return new Matrix(rows, 1, means);
+    }
+
+    /**
+     * Berechnet die Summe jedes Elements pro Zeile.
+     * @return Eine Matrix (Spaltenvektor) mit den Summen.
+     */
+    public Matrix sumByRow() {
+        double[][] sums = new double[rows][1];
+        for (int i = 0; i < rows; i++) {
+            double sum = 0.0;
+            for (int j = 0; j < cols; j++) {
+                sum += data[i][j];
+            }
+            sums[i][0] = sum;
+        }
+        return new Matrix(rows, 1, sums);
+    }
+
+    /**
+     * Dividiert jedes Element der Matrix durch einen Skalar.
+     * @param scalar Der Skalar, durch den geteilt wird.
+     * @return Eine neue Matrix mit den Ergebnissen.
+     */
+    public Matrix divide(double scalar) {
+        if (scalar == 0) {
+            throw new IllegalArgumentException("Division by zero is not allowed.");
+        }
+        double[][] result = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result[i][j] = data[i][j] / scalar;
+            }
+        }
+        return new Matrix(rows, cols, result);
+    }
+
+    /**
+     * Berechnet die Potenz jedes Elements der Matrix.
+     * @param exponent Der Exponent.
+     * @return Eine neue Matrix mit den potenziertem Elementen.
+     */
+    public Matrix pow(double exponent) {
+        double[][] result = new double[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                result[i][j] = Math.pow(data[i][j], exponent);
+            }
+        }
+        return new Matrix(rows, cols, result);
+    }
+
+
     public Matrix dot(Matrix other) {
         if (this.cols != other.rows) {
             throw new IllegalArgumentException("Dot product dimension mismatch: " +
