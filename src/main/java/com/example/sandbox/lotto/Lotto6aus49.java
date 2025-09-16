@@ -1,11 +1,12 @@
-package com.example.sandbox.lotto.old;
+package com.example.sandbox.lotto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public record Lotto6aus49(
         LocalDate datum,
         List<Integer> zahlen,
-        int zusatzzahl,
+        Optional<Integer> zusatzzahl,
         int superzahl
 ) {}

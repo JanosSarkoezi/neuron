@@ -1,4 +1,4 @@
-package com.example.sandbox.markov;
+package com.example.sandbox.markov.old;
 
 import com.example.sandbox.neuron.Matrix;
 
