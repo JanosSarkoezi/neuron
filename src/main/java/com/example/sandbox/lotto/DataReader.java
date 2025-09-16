@@ -1,31 +1,31 @@
 package com.example.sandbox.lotto;
 
+import com.example.sandbox.validator.Either;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DataReader {
 
-    public static List<Lotto6aus49> readData(Path filePath) throws IOException {
+    public static Either<String, List<Lotto6aus49>> readData(Path filePath) {
+        System.out.println("Lese Daten aus der Datei: " + filePath.toAbsolutePath());
         try (Stream<String> lines = Files.lines(filePath)) {
-            return lines.skip(1) // Kopfzeile überspringen
-                    .filter(line -> !line.startsWith("#")) // Kommentierte Zeilen ignorieren
-                    .map(LottoProcessor::processLine) // Die Verarbeitung an den Processor delegieren
-                    .collect(Collectors.toList());
-        }
-    }
+            // Die einzelnen Zeilen parsen und in eine Liste von Eithers umwandeln
+            List<Either<String, Lotto6aus49>> allResults = lines
+                    .skip(1)
+                    .filter(line -> !line.startsWith("#"))
+                    .map(LottoProcessor::processLine)
+                    .toList();
 
-    public static void main(String[] args) {
-        // Beispiel-Nutzung
-        Path filePath = Path.of("path/to/your/file.txt"); // Den Pfad zur Datei anpassen
-        try {
-            List<Lotto6aus49> ziehungen = readData(filePath);
-            ziehungen.forEach(System.out::println);
+            // Mithilfe von Either.sequence die Liste der Eithers in einen einzigen Either konvertieren.
+            // Der erste Fehler bricht die Operation ab.
+            return Either.sequence(allResults);
+
         } catch (IOException e) {
-            e.printStackTrace();
+            return Either.left("Fehler beim Lesen der Datei: " + e.getMessage());
         }
     }
 }
