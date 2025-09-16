@@ -56,11 +56,13 @@ public class EurolottoProcessor {
         // Wert sein, wie im letzten Beispiel. Hier eine pragmatische Annahme.
         BigDecimal jackpot = new BigDecimal(parts[10].trim().replace(".", "").replace(",", "."));
 
-        // Parsen der 12 Gewinnklassen
+        // Die Gewinnklassen beginnen bei Index 11
         List<EuroLottoZiehung.Gewinnklasse> gewinnklassen = new ArrayList<>();
-        // Die Gewinnklassen beginnen bei Index 11.
         for (int i = 11; i < parts.length; i += 2) {
-            long anzahlGewinner = Long.parseLong(parts[i].trim());
+            // Die Tausendertrennzeichen-Punkte entfernen, bevor geparst wird.
+            String anzahlString = parts[i].trim().replace(".", "");
+            long anzahlGewinner = Long.parseLong(anzahlString);
+
             BigDecimal quote = new BigDecimal(parts[i + 1].trim().replace(".", "").replace(",", "."));
             gewinnklassen.add(new EuroLottoZiehung.Gewinnklasse(anzahlGewinner, quote));
         }
