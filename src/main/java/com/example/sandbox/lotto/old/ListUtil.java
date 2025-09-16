@@ -1,4 +1,4 @@
-package com.example.sandbox.lotto;
+package com.example.sandbox.lotto.old;
 
 import java.util.List;
 import java.util.Optional;

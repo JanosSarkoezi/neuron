@@ -1,4 +1,4 @@
-package com.example.sandbox.lotto;
+package com.example.sandbox.lotto.old;
 
 import java.io.IOException;
 import java.nio.file.Files;

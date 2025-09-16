@@ -1,8 +1,8 @@
 package com.example.sandbox.markov;
 
-import com.example.sandbox.lotto.DataReader;
-import com.example.sandbox.lotto.ListUtil;
-import com.example.sandbox.lotto.Ziehung;
+import com.example.sandbox.lotto.old.DataReader;
+import com.example.sandbox.lotto.old.ListUtil;
+import com.example.sandbox.lotto.old.Ziehung;
 
 import java.io.IOException;
 import java.net.URI;

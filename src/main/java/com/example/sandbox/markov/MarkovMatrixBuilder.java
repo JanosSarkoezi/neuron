@@ -1,7 +1,7 @@
 package com.example.sandbox.markov;
 
-import com.example.sandbox.lotto.DataReader;
-import com.example.sandbox.lotto.Ziehung;
+import com.example.sandbox.lotto.old.DataReader;
+import com.example.sandbox.lotto.old.Ziehung;
 import com.example.sandbox.neuron.Matrix;
 
 import java.io.IOException;
