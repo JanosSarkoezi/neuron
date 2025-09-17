@@ -5,6 +5,7 @@ import com.example.sandbox.validator.Either;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ public class LottoProcessor {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d M yyyy");
 
-    public static Either<String, Lotto6aus49> processLine(String line) {
+    public static Either<String, LottoZiehung> processLine(String line) {
         try {
             String[] parts = line.split("\\t");
             if (parts.length < 11) {
@@ -32,9 +33,9 @@ public class LottoProcessor {
 
             // Parsen der Zusatz- und Superzahl
             Optional<Integer> zusatz = safeParse(parts[9]);
-            int superzahl = Integer.parseInt(parts[10].trim());
+            Optional<Integer> superzahl = safeParse(parts[10].trim());
 
-            return Either.right(new Lotto6aus49(datum, zahlen, zusatz, superzahl));
+            return Either.right(new LottoZiehung(datum, zahlen, zusatz, superzahl, Collections.emptyList()));
 
         } catch (Exception e) {
             // Fängt NumberFormatException oder andere Fehler ab
@@ -53,13 +54,13 @@ public class LottoProcessor {
 
     public static void main(String[] args) {
         String dataLine = "2\t12\t2000\t46\t4\t45\t32\t42\t43\t35\t5";
-        Either<String, Lotto6aus49> ergebnis = processLine(dataLine);
+        Either<String, LottoZiehung> ergebnis = processLine(dataLine);
 
         ergebnis.match(
                 error -> System.err.println("Fehler beim Parsen der Zeile: " + error),
                 ziehung -> {
                     System.out.println("Datum: " + ziehung.datum());
-                    System.out.println("Zahlen: " + ziehung.zahlen());
+                    System.out.println("Zahlen: " + ziehung.hauptZahlen());
                     System.out.println("Zusatzzahl: " + ziehung.zusatzzahl());
                     System.out.println("Superzahl: " + ziehung.superzahl());
                 }

@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 
 public class DataReader {
 
-    public static Either<String, List<Lotto6aus49>> readData(Path filePath) {
+    public static Either<String, List<LottoZiehung>> readData(Path filePath) {
         System.out.println("Lese Daten aus der Datei: " + filePath.toAbsolutePath());
         try (Stream<String> lines = Files.lines(filePath)) {
             // Die einzelnen Zeilen parsen und in eine Liste von Eithers umwandeln
-            List<Either<String, Lotto6aus49>> allResults = lines
+            List<Either<String, LottoZiehung>> allResults = lines
                     .skip(1)
                     .filter(line -> !line.startsWith("#"))
                     .map(LottoProcessor::processLine)

@@ -25,7 +25,7 @@ public class LottoMarkov {
 
         List<Ziehung> ziehungen = DataReader.readData(filePath);
         List<Ziehung> filtered = ziehungen.stream()
-                .filter(ziehung -> ziehung.tagDerZiehung().isAfter(LocalDate.of(2000, 1, 1)))
+                .filter(ziehung -> ziehung.tagDerZiehung().isAfter(LocalDate.of(2025, 1, 1)))
                 .collect(Collectors.toList());
 
         Optional<Ziehung> removed = ListUtil.removeLastAndSave(filtered, 1);
