@@ -9,11 +9,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LottoProcessor {
+public class LottoProcessor implements Processor{
+    private static final int MAX_LOTTO_NUMBER = 49;
+
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d M yyyy");
 
-    public static Either<String, LottoZiehung> processLine(String line) {
+    @Override
+    public Either<String, LottoZiehung> processLine(String line) {
         try {
             String[] parts = line.split("\\t");
             if (parts.length < 11) {
@@ -52,18 +55,8 @@ public class LottoProcessor {
         }
     }
 
-    public static void main(String[] args) {
-        String dataLine = "2\t12\t2000\t46\t4\t45\t32\t42\t43\t35\t5";
-        Either<String, LottoZiehung> ergebnis = processLine(dataLine);
-
-        ergebnis.match(
-                error -> System.err.println("Fehler beim Parsen der Zeile: " + error),
-                ziehung -> {
-                    System.out.println("Datum: " + ziehung.datum());
-                    System.out.println("Zahlen: " + ziehung.hauptZahlen());
-                    System.out.println("Zusatzzahl: " + ziehung.zusatzzahl());
-                    System.out.println("Superzahl: " + ziehung.superzahl());
-                }
-        );
+    @Override
+    public int getMaxLottoNumber() {
+        return MAX_LOTTO_NUMBER;
     }
 }

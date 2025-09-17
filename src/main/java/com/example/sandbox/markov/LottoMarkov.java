@@ -2,6 +2,7 @@ package com.example.sandbox.markov;
 
 import com.example.sandbox.lotto.LottoZiehung;
 import com.example.sandbox.lotto.LottoProcessor;
+import com.example.sandbox.lotto.Processor;
 import com.example.sandbox.neuron.Matrix;
 import com.example.sandbox.validator.Either;
 
@@ -23,18 +24,18 @@ public class LottoMarkov {
     record FinalResult(Matrix prediction, List<LottoZiehung> trainingData) {}
     private record PredictionItem(int lottoNumber, double probability) {}
 
-    private static final int MAX_LOTTO_NUMBER = 49; // Für z.B. Lotto 6 aus 49
-
     public static void main(String[] args) {
+        Processor processor = new LottoProcessor();
+
         // Starte die Kette mit der Operation, die den Dateipfad liefert
         Either<String, Path> pathEither = getFilePath("lotto_6aus49_ab_02.12.2000.txt");
 
         // Die gesamte Verarbeitungskette als eine Folge von flatMap-Aufrufen
         Either<String, FinalResult> resultEither = pathEither
-                .flatMap(LottoMarkov::readAllData)
+                .flatMap(path -> LottoMarkov.readAllData(path, processor))
                 .flatMap(LottoMarkov::filterByDate)
                 .flatMap(LottoMarkov::splitData)
-                .flatMap(LottoMarkov::createPrediction);
+                .flatMap(data -> LottoMarkov.createPrediction(data, processor.getMaxLottoNumber()));
 
         // Am Ende der Kette wird das Ergebnis verarbeitet
         resultEither.match(LottoMarkov::handleError, LottoMarkov::handleSuccess);
@@ -50,14 +51,14 @@ public class LottoMarkov {
         }
     }
 
-    private static Either<String, List<LottoZiehung>> readAllData(Path filePath) {
+    private static Either<String, List<LottoZiehung>> readAllData(Path filePath, Processor processor) {
         System.out.println("Lese Daten aus der Datei: " + filePath.toAbsolutePath());
         try (Stream<String> lines = Files.lines(filePath)) {
             // Die einzelnen Zeilen parsen und in eine Liste von Eithers umwandeln
             List<Either<String, LottoZiehung>> allResults = lines
                     .skip(1)
                     .filter(line -> !line.startsWith("#"))
-                    .map(LottoProcessor::processLine)
+                    .map(processor::processLine)
                     .toList();
 
             // Mithilfe von Either.sequence die Liste der Eithers in einen einzigen Either konvertieren.
@@ -102,23 +103,23 @@ public class LottoMarkov {
     /**
      * Erstellt einen 49x1 Vektor, wobei die gezogenen Zahlen 1.0 sind, sonst 0.0.
      */
-    private static Matrix toHotmapVector(LottoZiehung lottoZug) {
-        Matrix hotmap = Matrix.zeros(MAX_LOTTO_NUMBER, 1);
+    private static Matrix toHotmapVector(LottoZiehung lottoZug, int maxLottoNumber) {
+        Matrix hotmap = Matrix.zeros(maxLottoNumber, 1);
 
         for (int number : lottoZug.hauptZahlen()) {
             // Lottozahlen sind 1-basiert, Matrix-Indizes sind 0-basiert
             int index = number - 1;
-            if (index >= 0 && index < MAX_LOTTO_NUMBER) {
+            if (index >= 0 && index < maxLottoNumber) {
                 hotmap.set(index, 0, 1.0);
             }
         }
         return hotmap;
     }
 
-    private static Either<String, FinalResult> createPrediction(SplitData splitData) {
+    private static Either<String, FinalResult> createPrediction(SplitData splitData, int maxLottoNumber) {
         // 1. Markov-Matrix aus Trainingsdaten erstellen (Teil 1)
         System.out.println("Erstelle die Übergangsmatrix mit den Trainingsdaten...");
-        MarkovMatrix markov = new MarkovMatrix(MAX_LOTTO_NUMBER);
+        MarkovMatrix markov = new MarkovMatrix(maxLottoNumber);
 
         splitData.trainingData().stream()
                 .map(LottoZiehung::hauptZahlen)
@@ -127,7 +128,7 @@ public class LottoMarkov {
         Matrix probabilityMatrix = markov.buildProbabilityMatrix();
 
         // 2. Hotmap des letzten Eintrags erstellen (Teil 2)
-        Matrix hotmapVector = toHotmapVector(splitData.lastEntry());
+        Matrix hotmapVector = toHotmapVector(splitData.lastEntry(), maxLottoNumber);
 
         // 3. Die Prognose berechnen (Matrix-Multiplikation)
         // Prognose = Hotmap_Vector^T . Matrix
