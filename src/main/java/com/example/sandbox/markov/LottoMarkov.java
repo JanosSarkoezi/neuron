@@ -1,5 +1,6 @@
 package com.example.sandbox.markov;
 
+import com.example.sandbox.euro.EurolottoProcessor;
 import com.example.sandbox.lotto.LottoZiehung;
 import com.example.sandbox.lotto.LottoProcessor;
 import com.example.sandbox.lotto.Processor;
@@ -26,9 +27,12 @@ public class LottoMarkov {
 
     public static void main(String[] args) {
         Processor processor = new LottoProcessor();
+        // Processor processor = new EurolottoProcessor();
+
 
         // Starte die Kette mit der Operation, die den Dateipfad liefert
         Either<String, Path> pathEither = getFilePath("lotto_6aus49_ab_02.12.2000.txt");
+        // Either<String, Path> pathEither = getFilePath("eurojackpot.txt");
 
         // Die gesamte Verarbeitungskette als eine Folge von flatMap-Aufrufen
         Either<String, FinalResult> resultEither = pathEither

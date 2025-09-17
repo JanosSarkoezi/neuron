@@ -12,7 +12,6 @@ import java.util.Optional;
 public class LottoProcessor implements Processor{
     private static final int MAX_LOTTO_NUMBER = 49;
 
-
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d M yyyy");
 
     @Override
