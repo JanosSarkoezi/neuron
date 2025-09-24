@@ -517,17 +517,37 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
     // --- Try/Catch Integration ---
 
     /**
-     * Führt eine Operation aus, die eine Ausnahme auslösen könnte, und kapselt
-     * das Ergebnis in ein {@code Either}. Eine erfolgreiche Ausführung führt
-     * zu einem {@link Right}, eine geworfene {@link Throwable} zu einem {@link Left}.
+     * Führt eine Operation aus, die eine Ausnahme auslösen könnte, und kapselt das Ergebnis
+     * in ein {@code Either}, wobei die geworfene {@link Throwable} direkt als linker Wert
+     * zurückgegeben wird. Dies ist nützlich für Fälle, in denen der vollständige Stacktrace
+     * oder die ursprüngliche Ausnahme beibehalten werden soll.
      *
-     * @param supplier    der {@link Supplier}, der die risikoreiche Operation ausführt und den Ergebniswert liefert.
+     * @param supplier der {@link ThrowingSupplier}, der die risikoreiche Operation ausführt.
+     * @param <R>      der Typ des rechten (Erfolgs-) Wertes.
+     * @return ein {@code Either} mit dem Ergebnis oder der geworfenen Ausnahme.
+     */
+    static <R> Either<Throwable, R> catching(ThrowingSupplier<? extends R> supplier) {
+        try {
+            return Either.right(supplier.get());
+        } catch (Throwable t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Führt eine Operation aus, die eine Ausnahme auslösen könnte, und kapselt das Ergebnis
+     * in ein {@code Either}. Eine erfolgreiche Ausführung führt zu einem {@link Right},
+     * während eine geworfene {@link Throwable} mit einem {@code errorMapper} in den
+     * linken Fehlertyp {@code L} abgebildet wird. Dies ermöglicht eine gezielte
+     * Fehlerbehandlung und Typisierung.
+     *
+     * @param supplier    der {@link ThrowingSupplier}, der die risikoreiche Operation ausführt.
      * @param errorMapper die Funktion, die eine geworfene {@link Throwable} in den linken Fehlertyp {@code L} abbildet.
      * @param <L>         der Typ des linken (Fehler-) Wertes.
      * @param <R>         der Typ des rechten (Erfolgs-) Wertes.
-     * @return ein {@code Either} mit dem Ergebnis oder dem Fehler.
+     * @return ein {@code Either} mit dem Ergebnis oder dem abgebildeten Fehler.
      */
-    static <L, R> Either<L, R> catching(Supplier<? extends R> supplier,
+    static <L, R> Either<L, R> catching(ThrowingSupplier<? extends R> supplier,
                                         Function<? super Throwable, ? extends L> errorMapper) {
         try {
             return Either.right(supplier.get());
@@ -537,24 +557,21 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
     }
 
     /**
-     * Führt eine Funktion {@code fn} auf dem gegebenen {@code value} aus,
-     * wobei alle dabei ausgelösten Ausnahmen abgefangen und als {@link Left}-Wert
-     * zurückgegeben werden.
+     * Wendet eine Funktion {@code fn} auf einen Eingabewert an und fängt dabei auftretende
+     * Ausnahmen ab, um das Ergebnis als {@code Either} zurückzugeben. Die geworfene {@link Throwable}
+     * wird mit einem {@code errorMapper} in den linken Fehlertyp {@code L} abgebildet.
+     * Diese Methode ist praktisch für das sichere "Lifting" von Funktionen, die Ausnahmen werfen können.
      *
-     * <p>Eine erfolgreiche Ausführung führt zu einem {@link Right}-Wert, eine geworfene
-     * {@link Throwable} zu einem {@link Left}-Wert, der durch den {@code errorMapper}
-     * abgebildet wird.</p>
-     *
-     * @param value       der Eingabewert, auf den die Funktion angewendet werden soll.
+     * @param value       der Eingabewert, auf den die Funktion angewendet wird.
      * @param fn          die Funktion, die auf den Wert angewendet wird und möglicherweise eine Ausnahme auslöst.
      * @param errorMapper die Funktion, die eine geworfene {@link Throwable} in den linken Fehlertyp {@code L} abbildet.
      * @param <L>         der Typ des linken (Fehler-) Wertes.
      * @param <T>         der Typ des Eingabewertes.
      * @param <R>         der Typ des rechten (Erfolgs-) Wertes.
-     * @return ein {@code Either} mit dem Ergebnis oder dem Fehler.
+     * @return ein {@code Either} mit dem Ergebnis oder dem abgebildeten Fehler.
      */
     static <L, T, R> Either<L, R> catching(T value,
-                                           Function<? super T, ? extends R> fn,
+                                           ThrowingFunction<? super T, ? extends R> fn,
                                            Function<? super Throwable, ? extends L> errorMapper) {
         try {
             return Either.right(fn.apply(value));
@@ -563,6 +580,58 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
         }
     }
 
+    /**
+     * Wendet eine Funktion {@code fn} auf einen Eingabewert an und fängt dabei auftretende
+     * Ausnahmen ab, um das Ergebnis als {@code Either} zurückzugeben. Die geworfene {@link Throwable}
+     * wird dabei direkt als linker Wert zurückgegeben, um den vollständigen Stacktrace zu erhalten.
+     * Diese Methode ist nützlich, wenn die Fehlerbehandlung zentralisiert und nicht
+     * sofort umgewandelt werden soll.
+     *
+     * @param value der Eingabewert, auf den die Funktion angewendet wird.
+     * @param fn    die Funktion, die auf den Wert angewendet wird und möglicherweise eine Ausnahme auslöst.
+     * @param <T>   der Typ des Eingabewertes.
+     * @param <R>   der Typ des rechten (Erfolgs-) Wertes.
+     * @return ein {@code Either} mit dem Ergebnis oder der geworfenen Ausnahme.
+     */
+    static <T, R> Either<Throwable, R> catching(T value,
+                                           ThrowingFunction<? super T, ? extends R> fn) {
+        try {
+            return Either.right(fn.apply(value));
+        } catch (Throwable t) {
+            return Either.left(t);
+        }
+    }
+
+    /**
+     * Führt die gegebene Funktion auf dem Erfolgswert dieses {@code Either} aus und
+     * wandelt das Ergebnis in einen neuen {@code Either}-Typ um.
+     * <p>
+     * Diese Methode ist ein funktionaler 'Bind'- oder 'flatMap'-Operator, der es ermöglicht,
+     * eine Kette von Operationen aufzubauen, die Ausnahmen auslösen können. Wenn die
+     * übergebene Funktion eine {@link Throwable}-Ausnahme wirft, wird diese abgefangen
+     * und mithilfe des {@code errorMapper} in den linken (Fehler-) Wert umgewandelt.
+     * <p>
+     * Ist dieses {@code Either} bereits ein Fehler ({@link Left}), wird die Funktion nicht
+     * ausgeführt, und der bestehende Fehler wird einfach weitergegeben.
+     *
+     * @param fn            die Funktion, die auf den Wert angewendet wird und eine Ausnahme auslösen kann.
+     * Die Funktion muss einen Wert vom Typ {@code T} zurückgeben.
+     * @param errorMapper   eine Funktion, die eine geworfene {@link Throwable}-Ausnahme
+     * in einen Wert vom Typ {@code L} umwandelt.
+     * @param <T>           der Typ des Erfolgs-Rückgabewertes der Funktion.
+     * @return ein neues {@code Either} mit dem Ergebnis der Operation im Erfolgsfall
+     * oder dem umgewandelten Fehler im Ausnahmefall.
+     */
+    default <T> Either<L, T> catching(ThrowingFunction<R, T> fn,
+                                      Function<? super Throwable, ? extends L> errorMapper) {
+        return flatMap(r -> {
+            try {
+                return Either.right(fn.apply(r));
+            } catch (Throwable t) {
+                return Either.left(errorMapper.apply(t));
+            }
+        });
+    }
 
     // --- Funktion "liften" ---
 
