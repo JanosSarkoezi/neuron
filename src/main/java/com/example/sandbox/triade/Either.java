@@ -295,7 +295,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
      * @param <T> der neue Typ des rechten Wertes (der Rückgabetyp der Funktion).
      * @return ein neues {@code Either} mit dem angewendeten Ergebnis oder dem Fehler.
      */
-    default <T> Either<L, T> ap(Either<L, Function<? super R, ? extends T>> fn) {
+    default <T> Either<L, T> ap(Either<L, Function<R, T>> fn) {
         return fn.flatMap(this::map);
     }
 
@@ -587,7 +587,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
      * @param <R>   der Typ des rechten (Erfolgs-) Wertes.
      * @return ein {@code Either} mit dem Ergebnis oder der geworfenen Ausnahme.
      */
-    static <T, R> Either<Throwable, R> catching(T value,
+    static <T, R> Either<Throwable, R> catchingValue(T value,
                                            ThrowingFunction<? super T, ? extends R> fn) {
         try {
             return Either.right(fn.apply(value));
