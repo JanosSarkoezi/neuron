@@ -1,5 +1,6 @@
 package com.example.sandbox.neuron;
 
+import com.example.sandbox.ki.neuron.Matrix;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
