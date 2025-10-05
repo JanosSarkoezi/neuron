@@ -29,16 +29,28 @@ public class DecoderLayer {
         // Speichere die Eingabe für den Rückwärtspass der Self-Attention
         this.lastSelfAttentionInput = decoderInput;
 
+        // Erstellen der Look-ahead-Maske für die Self-Attention im Decoder
+        int seqLength = decoderInput.rows();
+        double[][] maskData = new double[seqLength][seqLength];
+        for (int i = 0; i < seqLength; i++) {
+            for (int j = 0; j < seqLength; j++) {
+                if (j > i) {
+                    maskData[i][j] = Double.NEGATIVE_INFINITY;
+                }
+            }
+        }
+        Matrix lookAheadMask = new Matrix(seqLength, seqLength, maskData);
+
         // 1. Maskierte Multi-Head Self-Attention
-        // Der Maskierungsmechanismus (nicht implementiert) würde hier angewendet.
-        Matrix maskedAttentionOutput = selfAttention.forward(decoderInput, decoderInput, decoderInput);
+        // Die erstellte Maske wird hier an die forward-Methode übergeben.
+        Matrix maskedAttentionOutput = selfAttention.forward(decoderInput, decoderInput, decoderInput, lookAheadMask);
         this.lastSelfAttentionOutput = maskedAttentionOutput;
         Matrix outputAfterSelfAttention = norm1.forward(decoderInput.add(maskedAttentionOutput));
 
         // Speichere die Eingabe für den Rückwärtspass der Cross-Attention
         this.lastCrossAttentionInput = outputAfterSelfAttention;
 
-        // 2. Multi-Head Cross-Attention
+        // 2. Multi-Head Cross-Attention (ohne Maske)
         // 'outputAfterSelfAttention' ist der Query, 'encoderOutput' ist Key und Value
         Matrix crossAttentionOutput = crossAttention.forward(outputAfterSelfAttention, encoderOutput, encoderOutput);
         Matrix outputAfterCrossAttention = norm2.forward(outputAfterSelfAttention.add(crossAttentionOutput));
@@ -54,7 +66,7 @@ public class DecoderLayer {
     public Matrix backward(Matrix delta, Matrix encoderOutput) {
         // 1. Rückwärts durch die letzte Normalisierung und das FFN
         Matrix deltaAfterNorm3 = delta; // Simplification
-        Matrix deltaFFN = feedForward.backward(deltaAfterNorm3);
+        Matrix deltaFFN = feedForward.backward(deltaAfterNorm3, lastFFNInput);
         Matrix deltaBeforeFFN = deltaFFN; // Simplification
 
         // 2. Rückwärts durch die zweite Normalisierung und die Cross-Attention

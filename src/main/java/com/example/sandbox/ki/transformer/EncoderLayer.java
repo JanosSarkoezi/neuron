@@ -40,7 +40,7 @@ public class EncoderLayer {
         Matrix deltaAfterNorm2 = delta; // Simplification
 
         // Rückwärts durch das Feed-Forward-Netzwerk
-        Matrix deltaFFN = feedForward.backward(deltaAfterNorm2);
+        Matrix deltaFFN = feedForward.backward(deltaAfterNorm2, lastFFNInput);
 
         // Rückwärts durch die erste Normalisierung und die Residuenverbindung
         Matrix deltaAfterNorm1 = deltaFFN; // Simplification
