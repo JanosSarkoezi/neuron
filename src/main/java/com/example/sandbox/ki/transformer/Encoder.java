@@ -15,11 +15,11 @@ public class Encoder {
      * @param d_ff      Dimension des Feed-Forward-Netzwerks.
      * @param numLayers Anzahl der Encoder-Layer.
      */
-    public Encoder(int d_model, int numHeads, int d_ff, int numLayers) {
+    public Encoder(int d_model, int numHeads, int d_ff, int numLayers, double dropoutRate) {
         this.layers = new ArrayList<>();
         for (int i = 0; i < numLayers; i++) {
             // Hier wird der EncoderLayer-Konstruktor mit 3 Parametern aufgerufen
-            this.layers.add(new EncoderLayer(d_model, numHeads, d_ff));
+            this.layers.add(new EncoderLayer(d_model, numHeads, d_ff, dropoutRate));
         }
     }
 

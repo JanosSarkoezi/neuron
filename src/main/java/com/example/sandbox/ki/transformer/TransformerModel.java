@@ -1,12 +1,15 @@
 package com.example.sandbox.ki.transformer;
 
+import com.example.sandbox.ki.neuron.Layer;
 import com.example.sandbox.ki.neuron.Matrix;
+import com.example.sandbox.ki.neuron.activation.ActivationFunction;
 import com.example.sandbox.ki.neuron.loss.LossFunction;
 
 public class TransformerModel {
     private final Encoder encoder;
     private final Decoder decoder;
     private final PositionalEncoding positionalEncoding;
+    private final Layer embeddingLayer;
     private final LossFunction lossFunction;
 
     // Hyperparameter festlegen
@@ -16,11 +19,22 @@ public class TransformerModel {
     private final int d_ff = d_model * 4;
     private final int vocabSize = 30;
     private final int wordLength = 5;
+    private final double dropoutRate = 0.1;
 
     public TransformerModel(LossFunction lossFunction) {
-        this.positionalEncoding = new PositionalEncoding(wordLength, d_model);
-        this.encoder = new Encoder(d_model, numHeads, d_ff, numLayers);
-        this.decoder = new Decoder(d_model, numHeads, d_ff, numLayers);
+        this.embeddingLayer = Layer.builder()
+                .withSize(vocabSize, d_model) // Maps one-hot vocab to dense embedding
+                .withActivation(() -> new ActivationFunction() {
+                    @Override
+                    public Matrix apply(Matrix z) { return z.copy(); }
+                    @Override
+                    public Matrix derivative(Matrix z) { return Matrix.ones(z.rows(), z.cols()); }
+                })
+                .build();
+
+        this.positionalEncoding = new PositionalEncoding(wordLength, d_model, vocabSize, this.embeddingLayer);
+        this.encoder = new Encoder(d_model, numHeads, d_ff, numLayers, dropoutRate);
+        this.decoder = new Decoder(d_model, numHeads, d_ff, numLayers, dropoutRate);
         this.lossFunction = lossFunction;
     }
 
@@ -65,8 +79,9 @@ public class TransformerModel {
         Matrix deltaFromDecoder = decoder.backward(outputLossDerivative, encoderOutput);
 
         // Propagiere den Gradienten durch den Encoder
-        encoder.backward(deltaFromDecoder);
+        Matrix deltaForEmbedding = encoder.backward(deltaFromDecoder);
 
-        // Optional: Hier könnten auch die Parameter der PositionalEncoding und des Embeddings geupdatet werden.
+        // Propagiere den Gradienten zur Embedding-Schicht
+        positionalEncoding.backward(deltaForEmbedding);
     }
 }

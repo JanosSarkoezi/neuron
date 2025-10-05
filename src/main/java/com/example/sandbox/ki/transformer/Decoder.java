@@ -15,11 +15,11 @@ public class Decoder {
      * @param d_ff      Dimension des Feed-Forward-Netzwerks.
      * @param numLayers Anzahl der Decoder-Layer.
      */
-    public Decoder(int d_model, int numHeads, int d_ff, int numLayers) {
+    public Decoder(int d_model, int numHeads, int d_ff, int numLayers, double dropoutRate) {
         this.layers = new ArrayList<>();
         for (int i = 0; i < numLayers; i++) {
             // Der DecoderLayer-Konstruktor benötigt ebenfalls drei Parameter
-            this.layers.add(new DecoderLayer(d_model, numHeads, d_ff));
+            this.layers.add(new DecoderLayer(d_model, numHeads, d_ff, dropoutRate));
         }
     }
 
